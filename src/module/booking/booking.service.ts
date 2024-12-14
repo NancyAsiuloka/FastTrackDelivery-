@@ -9,20 +9,28 @@ import {
 export class BookingService {
   // CREATE BOOKING
   async createBooking(data: CreateBooking) {
-    const { productName, sender, receiver } = data;
-    const trackingCode = createTrackingCode();
-    const arrivedDate = new Date();
+    const { serviceName, contactDetails, parcels } = data;
 
-    const deliveryDate = new Date();
-    deliveryDate.setDate(arrivedDate.getDate() + 3);
+    const processedParcels = parcels.map((parcel) => {
+      const trackingNumber = createTrackingCode();
+      const pickupDate = new Date();
+
+      const deliveryDate = new Date(pickupDate);
+      deliveryDate.setDate(pickupDate.getDate() + 3);
+
+      return {
+        ...parcel,
+        trackingNumber,
+        pickupDate,
+        deliveryDate,
+        status: "Pending",
+      };
+    });
 
     const newBooking = await Booking.create({
-      trackingCode,
-      productName,
-      sender,
-      receiver,
-      arrivedDate,
-      deliveryDate,
+      serviceName,
+      contactDetails,
+      parcels: processedParcels,
     });
 
     return {
@@ -33,8 +41,8 @@ export class BookingService {
   //   GET ALL BOOKINGS
   async getAll() {
     const bookings = await Booking.find().select({
-      trackingCode: 1,
-      productName: 1,
+      "parcels.trackingNumber": 1,
+      "parcels.productName": 1,
     });
 
     return {
@@ -44,11 +52,11 @@ export class BookingService {
 
   //   GET ONE BOOKING
   async getOne(data: GetBooking) {
-    const { trackingCode, id } = data;
+    const { trackingNumber, id } = data;
 
     const query: any = {};
     if (id) query._id = id;
-    if (trackingCode) query.trackingCode = trackingCode;
+    if (trackingNumber) query["parcels.trackingNumber"] = trackingNumber;
 
     if (!Object.keys(query)) {
       throw new Error("No identifier provided to fetch booking!");
@@ -64,18 +72,55 @@ export class BookingService {
   }
 
   //   UPDATE BOOKING
-  async update(id: String, data: UpdateBooking) {
-    const { ...updateFields } = data;
+  async update(id: string, data: UpdateBooking) {
+    const { serviceName, contactDetails, parcels } = data;
 
-    const update = await Booking.findOneAndUpdate(
+    if (!Array.isArray(parcels) || parcels.length === 0) {
+      throw new Error("Parcels must be a non-empty array.");
+    }
+
+    // Helper function to update parcel fields conditionally
+    const updateParcelFields = (parcel: any) => {
+      const updatedParcel: any = {};
+      const parcelFields = [
+        "productName",
+        "senderDetails",
+        "recipientDetails",
+        "weight",
+        "status",
+        "cost",
+        "deliveryDate"
+      ];
+
+      parcelFields.forEach((field) => {
+        if (parcel[field]) {
+          updatedParcel[field] = parcel[field];
+        }
+      });
+
+      return updatedParcel;
+    };
+
+    const updatedParcels = parcels.map(updateParcelFields);
+
+    // Prepare the update query
+    const updateFields = {
+      serviceName,
+      contactDetails,
+      parcels: updatedParcels,
+    };
+
+    const updatedBooking = await Booking.findOneAndUpdate(
       { _id: id },
       { ...updateFields },
       { new: true }
     );
 
-    return {
-      update,
-    };
+    if (!updatedBooking) {
+      throw new Error("Booking not found!");
+    }
+
+    return { updatedBooking };
   }
 
   //  DELETE BOOKING

@@ -1,37 +1,55 @@
 export interface CreateBooking {
-  productName: string;
-  sender: {
-    name: string;
-    address: string;
-    email: string;
+  serviceName: string;
+  contactDetails: {
     phone: string;
-  };
-  receiver: {
-    name: string;
-    address: string;
     email: string;
-    phone: string;
+    address: string;
   };
+  parcels: {
+    trackingNumber: string;
+    productName: string;
+    senderDetails: {
+      name: string;
+      address: string;
+      phone: string;
+    };
+    recipientDetails: {
+      name: string;
+      address: string;
+      phone: string;
+    };
+    weight: number;
+    status: string;
+    cost: number;
+  }[];
 }
 
 export interface GetBooking {
-  trackingCode?: string;
+  trackingNumber?: string;
   id?: string;
 }
 
 export interface UpdateBooking {
+  serviceName?: string;
+  contactDetails: {
+    phone?: string;
+    email?: string;
+    address?: string;
+  };
+  parcels: {
     productName?: string;
-    sender: {
+    senderDetails: {
       name?: string;
       address?: string;
-      email?: string;
       phone?: string;
     };
-    receiver: {
+    recipientDetails: {
       name?: string;
       address?: string;
-      email?: string;
       phone?: string;
     };
-    status?: boolean;
+    weight?: number;
+    status?: string;
+    cost?: number;
+  }[];
 }

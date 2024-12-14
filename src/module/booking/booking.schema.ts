@@ -2,71 +2,79 @@ import { Schema, model } from "mongoose";
 
 const bookingSchema = new Schema(
   {
-    trackingCode: {
+    serviceName: {
       type: String,
-      unique: true,
-      required: [true, "Tracking code is required"],
-    },
-
-    productName: {
-      type: String,
-      required: [true, "Product name is required"],
+      required: true,
       trim: true,
     },
-
-    sender: {
-      name: {
+    contactDetails: {
+      phone: {
         type: String,
-        required: [true, "Sender's name is required"],
-      },
-      address: {
-        type: String,
-        required: [true, "Sender's address is required"],
+        required: true,
       },
       email: {
         type: String,
-        required: [true, "Sender's email is required"],
-      },
-      phone: {
-        type: String,
-        required: [true, "Sender's phone number is required"],
-      },
-    },
-
-    receiver: {
-      name: {
-        type: String,
-        required: [true, "Receiver's name is required"],
+        required: true,
+        trim: true,
+        lowercase: true,
+        match: [/\S+@\S+\.\S+/, "is invalid"],
       },
       address: {
         type: String,
-        required: [true, "Receiver's address is required"],
-      },
-      email: {
-        type: String,
-        required: [true, "Receiver's email is required"],
-      },
-      phone: {
-        type: String,
-        required: [true, "Receiver's phone number is required"],
+        required: true,
+        trim: true,
       },
     },
-
-    status: {
-      type: String,
-      enum: ["Pending", "Delivered", "Cancelled"],
-      default: "Pending",
-    },
-
-    arrivedDate: {
-      type: Date,
-      default: null,
-    },
-
-    deliveryDate: {
-      type: Date,
-      default: null,
-    },
+    parcels: [
+      {
+        trackingNumber: {
+          type: String,
+          required: true,
+          unique: true,
+          trim: true,
+        },
+        productName: {
+          type: String,
+          required: true,
+          trim: true
+        },
+        senderDetails: {
+          name: { type: String, required: true, trim: true },
+          address: { type: String, required: true, trim: true },
+          phone: { type: String, required: true },
+        },
+        recipientDetails: {
+          name: { type: String, required: true, trim: true },
+          address: { type: String, required: true, trim: true },
+          phone: { type: String, required: true },
+        },
+        weight: {
+          type: Number,
+          required: true,
+          min: [0, "Weight must be positive"],
+        },
+        status: {
+          type: String,
+          enum: ["Pending", "In Transit", "Delivered", "Cancelled"],
+          default: "Pending",
+        },
+        deliveryDate: {
+          type: Date,
+          required: function () {
+            return this.status === "Delivered";
+          },
+        },
+        pickupDate: {
+          type: Date,
+          default: Date.now,
+        },
+        cost: {
+          type: Number,
+          required: true,
+          min: [0, "Cost must be positive"],
+        },
+      },
+    ],
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
