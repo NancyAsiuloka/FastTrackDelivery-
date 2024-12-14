@@ -89,7 +89,7 @@ export class BookingService {
         "weight",
         "status",
         "cost",
-        "deliveryDate"
+        "deliveryDate",
       ];
 
       parcelFields.forEach((field) => {

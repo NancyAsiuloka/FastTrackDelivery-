@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { LoginUser} from "../../types/user.types";
+import { LoginUser } from "../../types/user.types";
 import { AuthService } from "./auth.service";
-import { unauthorized } from "../../utils/error"
+import { unauthorized } from "../../utils/error";
 import httpStatus from "http-status";
 
 export interface AuthControllerInterface {
@@ -17,7 +17,7 @@ export class AuthController implements AuthControllerInterface {
 
   constructor() {
     this.authService = new AuthService();
-}
+  }
 
   async login(
     req: Request,
