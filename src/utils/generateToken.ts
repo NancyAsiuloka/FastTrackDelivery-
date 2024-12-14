@@ -15,7 +15,7 @@ export const createTrackingCode = (): string => {
 
 
 // Generates a JWT token
-export const generateToken = (id: number) => {
+export const generateToken = (id: string) => {
   const token = jwt.sign({ id }, process.env.SECRET_KEY as string, {
     expiresIn: "1h",
   });

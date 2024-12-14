@@ -1,53 +1,41 @@
-import User from "./auth.schema";
-import { hashPassword, decryptPassword } from "../../utils/bcrypt";
+import bcrypt from "bcrypt";
+import Admin from "./auth.schema";
 import { generateToken } from "../../utils/generateToken";
-import { RegisterUser, LoginUser } from "../../types/user.types";
+import { LoginUser } from "../../types/user.types";
 
 export class AuthService {
-  async register(data: RegisterUser) {
-    const { full_name, email, password, phone_number } = data;
-
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-      throw new Error("User already exists");
-    }
-
-    const hashedPassword = await hashPassword(password);
-
-    const newUser = await User.create({
-      full_name,
-      email,
-      password: hashedPassword,
-      phone_number,
-    });
-
-    return {
-      user: newUser,
-    };
-  }
-
   // Login user and generate JWT
   async login(data: LoginUser) {
-    const user = await User.findOne({ email: data.email }).select(
-      "+password"
-    );
+    const { email, password } = data;
 
-    if (!user) {
-      throw new Error("Invalid credentials");
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (email === adminEmail) {
+      const match = await bcrypt.compare(password, adminPassword);
+      if (!match) {
+        throw new Error("Invalid credentials");
+      }
+
+      let admin = await Admin.findOne({ email: adminEmail });
+
+      if (!admin) {
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+        admin = new Admin({
+          email: adminEmail,
+          password: hashedPassword,
+          role: "admin",
+          is_verified: true,
+        });
+
+        await admin.save();
+      }
+      const token = generateToken(String(admin._id));
+
+      return {
+        token,
+      };
     }
-
-    const isPasswordValid = await decryptPassword(data.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new Error("Invalid Credentials");
-    }
-
-    const token = generateToken(user.id);
-
-    return {
-      user,
-      token,
-    };
   }
 }
