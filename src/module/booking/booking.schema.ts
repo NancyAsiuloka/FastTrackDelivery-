@@ -30,7 +30,6 @@ const bookingSchema = new Schema(
         trackingNumber: {
           type: String,
           required: true,
-          unique: true,
           trim: true,
         },
         productName: {

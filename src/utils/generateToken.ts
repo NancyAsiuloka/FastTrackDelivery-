@@ -10,6 +10,7 @@ export const createTrackingCode = (): string => {
       randomCode += characters[randomIndex];
     }
 
+
     return randomCode;
   };
 

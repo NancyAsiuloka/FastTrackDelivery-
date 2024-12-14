@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { LoginUser, RegisterUser } from "../../types/user.types";
+import { LoginUser} from "../../types/user.types";
 import { AuthService } from "./auth.service";
 import { unauthorized } from "../../utils/error"
 import httpStatus from "http-status";

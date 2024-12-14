@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import { hashPassword, decryptPassword } from "../../utils/bcrypt";
 import Admin from "./auth.schema";
 import { generateToken } from "../../utils/generateToken";
 import { LoginUser } from "../../types/user.types";
@@ -12,7 +12,10 @@ export class AuthService {
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (email === adminEmail) {
-      const match = await bcrypt.compare(password, adminPassword);
+      const hashedAdminPassword = await hashPassword(adminPassword); // Hash the admin password from .env
+
+      const match = await decryptPassword(password, hashedAdminPassword);
+
       if (!match) {
         throw new Error("Invalid credentials");
       }
@@ -20,7 +23,7 @@ export class AuthService {
       let admin = await Admin.findOne({ email: adminEmail });
 
       if (!admin) {
-        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+        const hashedPassword = await hashPassword(adminPassword);
 
         admin = new Admin({
           email: adminEmail,
@@ -31,11 +34,15 @@ export class AuthService {
 
         await admin.save();
       }
+
       const token = generateToken(String(admin._id));
 
       return {
+        admin,
         token,
       };
     }
+
+    throw new Error("Invalid credentials");
   }
 }
