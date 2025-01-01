@@ -4,5 +4,5 @@ export const unauthorized = {
   };
 export const notfound = {
     httpCode: 404,
-    message: "Invalid credentials"
+    message: "Not found"
   };
