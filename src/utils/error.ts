@@ -7,3 +7,8 @@ export const notfound = {
     httpCode: 404,
     message: "Not found"
   };
+
+export const notfound = {
+    httpCode: 404,
+    message: "Not found"
+  };
