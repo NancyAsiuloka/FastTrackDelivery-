@@ -8,7 +8,7 @@ export const notfound = {
     message: "Not found"
   };
 
-export const notfound = {
-    httpCode: 404,
+export const forbidden = {
+    httpCode: 403,
     message: "Not found"
   };
