@@ -5,7 +5,7 @@ import cors from "cors";
 import compression from "compression";
 import bodyParser from "body-parser";
 import routes from "./module/index";
-// import httpStatus from "http-status";
+
 import { dbConnect } from "./config/db";
 
 const app: Application = express();
