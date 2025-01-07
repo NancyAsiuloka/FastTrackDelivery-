@@ -39,7 +39,6 @@ try {
   app.use(routes);
 
   // handle unexpected errors
-
   process.on("unhandledRejection", (error: Error) =>
     console.error("Unhandled Rejection:", error, error.stack)
   );
