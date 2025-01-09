@@ -1,5 +1,4 @@
 import express, { Application, NextFunction, Request, Response } from "express";
-
 import { createServer } from "http";
 import cors from "cors";
 import compression from "compression";
