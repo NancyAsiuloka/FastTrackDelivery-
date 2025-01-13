@@ -11,3 +11,4 @@ authRoutes.post(
     await authController.login(req, res);
   }
 );
+
